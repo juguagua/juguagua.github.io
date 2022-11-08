@@ -6,6 +6,10 @@
     <description>Recent content on juguaguaji</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> f0a6360 (restore)
     <lastBuildDate>Wed, 09 Mar 2022 16:11:41 +0800</lastBuildDate><atom:link href="https://juguagua.github.io/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Test</title>
@@ -14,6 +18,19 @@
       
       <guid>https://juguagua.github.io/post/test/</guid>
       <description>first test 用于测试</description>
+<<<<<<< HEAD
+=======
+=======
+    <lastBuildDate>Tue, 08 Nov 2022 22:23:48 +0800</lastBuildDate><atom:link href="https://juguagua.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Jk</title>
+      <link>https://juguagua.github.io/post/jk/</link>
+      <pubDate>Tue, 08 Nov 2022 22:23:48 +0800</pubDate>
+      
+      <guid>https://juguagua.github.io/post/jk/</guid>
+      <description>jk是世界上最好看的衣服  jk + 肉丝 jk + 黑丝 jk + 白丝 jk + 光腿  </description>
+>>>>>>> 4847a4f (init blog repo)
+>>>>>>> f0a6360 (restore)
     </item>
     
   </channel>

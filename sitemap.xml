@@ -2,6 +2,10 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> f0a6360 (restore)
     <loc>https://juguagua.github.io/</loc>
     <lastmod>2022-03-09T16:11:41+08:00</lastmod>
   </url><url>
@@ -10,6 +14,19 @@
   </url><url>
     <loc>https://juguagua.github.io/post/test/</loc>
     <lastmod>2022-03-09T16:11:41+08:00</lastmod>
+<<<<<<< HEAD
+=======
+=======
+    <loc>https://juguagua.github.io/post/jk/</loc>
+    <lastmod>2022-11-08T22:23:48+08:00</lastmod>
+  </url><url>
+    <loc>https://juguagua.github.io/</loc>
+    <lastmod>2022-11-08T22:23:48+08:00</lastmod>
+  </url><url>
+    <loc>https://juguagua.github.io/post/</loc>
+    <lastmod>2022-11-08T22:23:48+08:00</lastmod>
+>>>>>>> 4847a4f (init blog repo)
+>>>>>>> f0a6360 (restore)
   </url><url>
     <loc>https://juguagua.github.io/categories/</loc>
   </url><url>
