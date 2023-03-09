@@ -1,170 +1,395 @@
-<!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    
-    <title>第三章 文件 | juguaguaji</title>
-    <meta name="viewport" content="width=device-width,minimum-scale=1">
-    <meta name="description" content="构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。
-参数文件 参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
-日志文件 日志文件记录了影响MySQL数据库的各种类型活动。
-错误日志 错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE &#39;log_error&#39;来定位该文件
-慢查询日志 慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
-二进制日志（bin log） 二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
- 恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击  二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
+<!doctype html>
+<html class="position-relative" itemscope itemtype="http://schema.org/WebPage" lang="en"
+  data-bs-theme="auto" data-palette="purple">
+  <head><script src="/assets/init/bundle.min.8dccb4a361226b02fb82d36d3bd706c323e633c8a0777ccf61f59dbacb9f2e05.js" integrity="sha256-jcy0o2EiawL7gtNtO9cGwyPmM8igd3zPYfWdusufLgU=" crossorigin="anonymous"></script>
+<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>第三章 文件 - 云在青天水在瓶</title>
+    <link rel="icon" href="/favicon_hucccd9e706a19cc8586335b155a80c266_43860_16x16_resize_q75_h2_box_2.webp" sizes="16x16" type="image/webp">
+    <link rel="icon" href="/favicon_hucccd9e706a19cc8586335b155a80c266_43860_32x32_resize_q75_h2_box_2.webp" sizes="32x32" type="image/webp">
+    <link rel="icon" href="/favicon_hucccd9e706a19cc8586335b155a80c266_43860_150x150_resize_q75_h2_box_2.webp" sizes="150x150" type="image/webp">
+    <link rel="apple-touch-icon" href="/favicon_hucccd9e706a19cc8586335b155a80c266_43860_180x180_resize_q75_h2_box_2.webp" sizes="180x180" type="image/webp">
+    <link rel="icon" href="/favicon_hucccd9e706a19cc8586335b155a80c266_43860_192x192_resize_q75_h2_box_2.webp" sizes="192x192" type="image/webp">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#6f42c1">
+<meta name="keywords" content="golang, rust, python, cloud native" />
+  <meta name="description" content="构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。
+参数文件参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
+日志文件日志文件记录了影响MySQL数据库的各种类型活动。
+错误日志错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE &#39;log_error&#39;来定位该文件
+慢查询日志慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
+二进制日志（bin log）二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
+恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击 二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
 二进制日志的格式可以由binlog_format参数进行设置，其为动态参数可随时更改：
- STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式  因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
-InnoDB存储引擎文件 表空间文件 InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
-重做日志文件（redo log） 默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。">
-    <meta name="generator" content="Hugo 0.93.3" />
-    
-    
-    
-    
-      <meta name="robots" content="noindex, nofollow">
-    
-
-    
-<link rel="stylesheet" href="/ananke/css/main.min.css" >
-
-
-
-    
-    
-    
-      
-
-    
-
-    
-    
-    <meta property="og:title" content="第三章 文件" />
+STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式 因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
+InnoDB存储引擎文件表空间文件InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
+重做日志文件（redo log）默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。" />
+    <meta name="robots" content="index, follow" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="第三章 文件"/>
+<meta name="twitter:description" content="构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。
+参数文件参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
+日志文件日志文件记录了影响MySQL数据库的各种类型活动。
+错误日志错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE &#39;log_error&#39;来定位该文件
+慢查询日志慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
+二进制日志（bin log）二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
+恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击 二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
+二进制日志的格式可以由binlog_format参数进行设置，其为动态参数可随时更改：
+STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式 因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
+InnoDB存储引擎文件表空间文件InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
+重做日志文件（redo log）默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。"/>
+<meta property="og:title" content="第三章 文件" />
 <meta property="og:description" content="构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。
-参数文件 参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
-日志文件 日志文件记录了影响MySQL数据库的各种类型活动。
-错误日志 错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE &#39;log_error&#39;来定位该文件
-慢查询日志 慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
-二进制日志（bin log） 二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
- 恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击  二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
+参数文件参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
+日志文件日志文件记录了影响MySQL数据库的各种类型活动。
+错误日志错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE &#39;log_error&#39;来定位该文件
+慢查询日志慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
+二进制日志（bin log）二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
+恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击 二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
 二进制日志的格式可以由binlog_format参数进行设置，其为动态参数可随时更改：
- STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式  因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
-InnoDB存储引擎文件 表空间文件 InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
-重做日志文件（redo log） 默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。" />
+STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式 因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
+InnoDB存储引擎文件表空间文件InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
+重做日志文件（redo log）默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。" />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://juguagua.github.io/post/%E7%AC%AC%E4%B8%89%E7%AB%A0-%E6%96%87%E4%BB%B6/" /><meta property="article:section" content="post" />
+<meta property="og:url" content="https://hbs-skeleton.netlify.app/post/%E7%AC%AC%E4%B8%89%E7%AB%A0-%E6%96%87%E4%BB%B6/" /><meta property="article:section" content="post" />
 
 
 
 <meta itemprop="name" content="第三章 文件">
 <meta itemprop="description" content="构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。
-参数文件 参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
-日志文件 日志文件记录了影响MySQL数据库的各种类型活动。
-错误日志 错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE &#39;log_error&#39;来定位该文件
-慢查询日志 慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
-二进制日志（bin log） 二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
- 恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击  二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
+参数文件参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
+日志文件日志文件记录了影响MySQL数据库的各种类型活动。
+错误日志错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE &#39;log_error&#39;来定位该文件
+慢查询日志慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
+二进制日志（bin log）二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
+恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击 二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
 二进制日志的格式可以由binlog_format参数进行设置，其为动态参数可随时更改：
- STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式  因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
-InnoDB存储引擎文件 表空间文件 InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
-重做日志文件（redo log） 默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。">
+STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式 因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
+InnoDB存储引擎文件表空间文件InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
+重做日志文件（redo log）默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。">
 
 <meta itemprop="wordCount" content="85">
-<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
-<meta name="twitter:title" content="第三章 文件"/>
-<meta name="twitter:description" content="构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。
-参数文件 参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
-日志文件 日志文件记录了影响MySQL数据库的各种类型活动。
-错误日志 错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE &#39;log_error&#39;来定位该文件
-慢查询日志 慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
-二进制日志（bin log） 二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
- 恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击  二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
-二进制日志的格式可以由binlog_format参数进行设置，其为动态参数可随时更改：
- STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式  因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
-InnoDB存储引擎文件 表空间文件 InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
-重做日志文件（redo log） 默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。"/>
+<meta itemprop="keywords" content="" />
+  <link rel="manifest" href="/manifest.json">
 
-	
-  </head>
+<link data-precache rel="stylesheet" href="/assets/main/bundle.min.6061159a3a3e8af84d0547d565f4eb1149bce1987b8a157e8c5ace5090d59de8.css" integrity="sha256-YGEVmjo+ivhNBUfVZfTrEUm84Zh7ihV+jFrOUJDVneg=" crossorigin="anonymous">
 
-  <body class="ma0 avenir bg-near-white">
+    <link data-precache rel="stylesheet" href="/assets/viewer/bundle.min.c8cc49b70e98e42caf70845e0d50f8e86821121688c2e5a5f6fc464d40154853.css" integrity="sha256-yMxJtw6Y5CyvcIReDVD46GghEhaIwuWl9vxGTUAVSFM=" crossorigin="anonymous">
 
-    
-   
+
+</head>
+  <body><header>
   
+<nav class="top-app-bar shadow navbar navbar-expand-xxl fixed-top">
+  <div class="container">
+<a class="navbar-brand d-flex align-items-center flex-grow-1 flex-xxl-grow-0 justify-content-xxl-start ms-2 ms-xxl-0 mx-auto me-xxl-2"
+    href="https://hbs-skeleton.netlify.app/">云在青天水在瓶
+</a>
 
-  <header>
-    <div class="bg-black">
-      <nav class="pv3 ph3 ph4-ns" role="navigation">
-  <div class="flex-l justify-between items-center center">
-    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
-      
-        juguaguaji
-      
+    <div class="offcanvas-xxl offcanvas-end flex-grow-1" data-bs-scroll="true" tabindex="-1" id="navbarMenus" aria-labelledby="navbarMenusLabel">
+      <div class="offcanvas-header px-4 pb-0">
+        <div class="offcanvas-title h5" id="navbarMenusLabel">云在青天水在瓶</div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#navbarMenus" aria-label="Close"></button>
+      </div>
+      <div class="offcanvas-body p-4 pt-0 p-xxl-0">
+        <hr class="d-xxl-none">
+        <ul class="navbar-nav flex-row flex-wrap align-items-center me-auto"><li class="nav-item col-6 col-xxl-auto">
+            <a class="nav-link py-2 px-0 px-xxl-2" href="https://hbs-skeleton.netlify.app/news/">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-newspaper" style="color: skyblue;"></i></span>News
+            </a>
+          </li>
+          <li class="nav-item col-12 col-xxl-auto dropdown px-0">
+            <a href="#"
+              class="nav-link dropdown-toggle"
+              id="navbarDropdownBlog" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+<span class="menu-icon me-1"><i class="fas fa-fw fa-blog text-warning"></i></span>Blog
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownBlog" data-bs-popper="none">
+                <li><h6 class="dropdown-header">Blog Menu Description</h6></li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-wrap text-xxl-nowrap"
+                  href="https://hbs-skeleton.netlify.app/archives/">
+                    <span class="dropdown-item-icon me-2 p-2 rounded">
+                      <i class="fas fa-fw fa-file-archive text-primary"></i>
+                    </span>
+                  <div class="dropdown-item-content">
+                    <p class="dropdown-item-title mb-0">Archives</p>
+                  </div></a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-wrap text-xxl-nowrap"
+                  href="https://hbs-skeleton.netlify.app/series/">
+                    <span class="dropdown-item-icon me-2 p-2 rounded">
+                      <i class="fas fa-fw fa-columns"></i>
+                    </span>
+                  <div class="dropdown-item-content">
+                    <p class="dropdown-item-title mb-1">Series</p>
+                      <p class="dropdown-item-description mb-0 text-secondary">List of series.</p>
+                  </div></a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-wrap text-xxl-nowrap"
+                  href="https://hbs-skeleton.netlify.app/categories/">
+                    <span class="dropdown-item-icon me-2 p-2 rounded">
+                      <i class="fas fa-fw fa-folder text-success"></i>
+                    </span>
+                  <div class="dropdown-item-content">
+                    <p class="dropdown-item-title mb-1">Categories</p>
+                      <p class="dropdown-item-description mb-0 text-secondary">List of categories.</p>
+                  </div></a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center text-wrap text-xxl-nowrap"
+                  href="https://hbs-skeleton.netlify.app/tags/">
+                    <span class="dropdown-item-icon me-2 p-2 rounded">
+                      <i class="fas fa-fw fa-tags"></i>
+                    </span>
+                  <div class="dropdown-item-content">
+                    <p class="dropdown-item-title mb-1">Tags</p>
+                      <p class="dropdown-item-description mb-0 text-secondary">List of tags.</p>
+                  </div></a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        
+    <hr class="d-xxl-none">
+    <form class="search-bar ms-auto my-1" action="/search/" novalidate>
+      <div class="input-group input-group-sm align-items-center">
+        <span class="btn btn-search disabled position-absolute left-0 border-0 px-1">
+          <i class="fas fa-fw fa-search fa-lg"></i>
+        </span>
+        <input
+          class="my-1 form-control border-white rounded search-input bg-body"
+          name="q"
+          type="search"
+          placeholder="Press / to search"
+          aria-label="Search"
+          required>
+      </div>
+    </form><hr class="d-xxl-none">
+        <ul class="navbar-nav flex-row flex-wrap align-items-center ms-md-auto">
+<li class="nav-item dropdown py-1 py-xxl-1 col-6 col-xxl-auto">
+    <a class="nav-link px-0 px-xxl-1" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-globe"></i>
+        <span class="d-xxl-none">Language</span>
     </a>
-    <div class="flex-l items-center">
-      
-
-      
-      
-<div class="ananke-socials">
-  
-</div>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+        <li>
+        <a class="dropdown-item active" href="/">
+            English
+        </a>
+        </li>
+        <li>
+        <a class="dropdown-item" href="/zh-cn/">
+            简体中文
+        </a>
+        </li></ul>
+</li>
+<li class="nav-item py-1 col-12 col-xxl-auto">
+  <div class="vr d-none d-xxl-flex h-100 mx-xxl-2 text-white"></div>
+  <hr class="d-xxl-none my-2">
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="fontSizeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-font"></i>
+        <span class="d-xxl-none">Font Size</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="fontSizeDropdown">
+        <li>
+            <button class="font-size-item dropdown-item" data-size="xs">
+                Extra Small
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="sm">
+                Small
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item active" data-size="md">
+                Medium
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="lg">
+                Large
+            </button>
+        </li>
+        <li>
+            <button class="font-size-item dropdown-item" data-size="xl">
+                Extra Large
+            </button>
+        </li>
+    </ul>
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="paletteDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-fw fa-palette"></i>
+        <span class="d-xxl-none">Palette</span>
+    </a>
+    <ul class="palette-dropdown-menu dropdown-menu dropdown-menu-end px-2 row g-2" aria-labelledby="paletteDropdown">
+            <li class="col-4 my-1">
+                <a role="button" id="palette-blue" aria-label="Blue"
+                    class="btn btn-sm w-100 palette text-bg-blue" data-palette="blue">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-blue-gray" aria-label="Blue Gray"
+                    class="btn btn-sm w-100 palette text-bg-blue-gray" data-palette="blue-gray">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-brown" aria-label="Brown"
+                    class="btn btn-sm w-100 palette text-bg-brown" data-palette="brown">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-cyan" aria-label="Cyan"
+                    class="btn btn-sm w-100 palette text-bg-cyan" data-palette="cyan">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-green" aria-label="Green"
+                    class="btn btn-sm w-100 palette text-bg-green" data-palette="green">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-indigo" aria-label="Indigo"
+                    class="btn btn-sm w-100 palette text-bg-indigo" data-palette="indigo">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-orange" aria-label="Orange"
+                    class="btn btn-sm w-100 palette text-bg-orange" data-palette="orange">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-pink" aria-label="Pink"
+                    class="btn btn-sm w-100 palette text-bg-pink" data-palette="pink">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-purple" aria-label="Purple"
+                    class="btn btn-sm w-100 palette text-bg-purple" data-palette="purple">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-red" aria-label="Red"
+                    class="btn btn-sm w-100 palette text-bg-red" data-palette="red">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-teal" aria-label="Teal"
+                    class="btn btn-sm w-100 palette text-bg-teal" data-palette="teal">
+                </a>
+            </li>
+            <li class="col-4 my-1">
+                <a role="button" id="palette-yellow" aria-label="Yellow"
+                    class="btn btn-sm w-100 palette text-bg-yellow" data-palette="yellow">
+                </a>
+            </li>
+    </ul>
+</li>
+<li class="nav-item dropdown col-6 col-xxl-auto">
+    <a class="nav-link px-0 py-2 px-xxl-1" href="#" id="modeDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="mode-icon fas fa-fw fa-adjust" id="modeIcon"></i>
+        <span class="d-xxl-none">Mode</span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="modeDropdown">
+        <li class="mode-item" data-color-mode="light" data-icon="sun">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-sun"></i> Light
+            </button>
+        </li>
+        <li class="mode-item" data-color-mode="dark" data-icon="moon">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-moon"></i> Dark
+            </button>
+        </li>
+        <li class="mode-item active" data-color-mode="auto" data-icon="adjust">
+            <button class="dropdown-item">
+                <i class="mode-icon fas fa-fw fa-adjust"></i> Auto
+            </button>
+        </li>
+    </ul>
+</li>
+        </ul>
+      </div>
+    </div>
+    <div class="d-flex">
+      <button class="navbar-toggler order-5 border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#navbarMenus"
+        aria-controls="navbarMenus" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-ellipsis-h"></i>
+      </button>
     </div>
   </div>
 </nav>
 
-    </div>
-  </header>
+</header>
 
+    <main class="container">
+      <div class="row content"><noscript>
+    <div class="alert alert-danger" role="alert">Your browser does not support JavaScript.</div>
+</noscript>
 
+<div class="col-xxl-8">
+  <div class="container"><nav class="row card component" aria-label="breadcrumb">
+  <div class="card-body pb-0">
+    <ol class="hbs-breadcrumb breadcrumb flex-nowrap"><li class="breadcrumb-item text-surface"><a href="/">Home</a></li><li class="breadcrumb-item text-surface"><a href="/post/">Posts</a></li><li class="breadcrumb-item active">第三章 文件</li></ol>
+  </div>
+</nav><div class="post-panel-wrapper position-relative d-flex justify-content-center">
+  <div class="d-flex flex-row justify-content-center rounded rounded-5 border border-primary post-panel position-fixed px-3 py-1 surface shadow">
+    
+    
 
-    <main class="pb7" role="main">
-      
-  
-  <article class="flex-l flex-wrap justify-between mw8 center ph3">
-    <header class="mt4 w-100">
-      <aside class="instapaper_ignoref b helvetica tracked">
-          
-        POSTS
-      </aside>
-      
+    
+    
+    
+  <a class="action action-toc d-none d-xxl-block" href="#postTOC" role="button" title="Table of contents">
+    <i class="fas fa-fw fa-list-alt"></i>
+  </a>
+<a class="action action-toc d-block d-xxl-none" href="#post-toc-container" role="button" title="Table of contents">
+  <i class="fas fa-fw fa-list-alt"></i>
+</a>
+    <a class="action action-copyright" href="#post-copyright" role="button" aria-label="Copyright" title="Copyright">
+  <i class="fas fa-fw fa-copyright"></i>
+</a>
+    <a class="action action-post-comments" href="#post-comments" role="button" aria-label="Comments" title="Comments">
+  <i class="fas fa-fw fa-comments"></i>
+</a>
+    
+<a id="sidebarToggler" class="action action-sidebar-toggler d-none d-xxl-block" role="button" title="Sidebar toggler">
+  <i class="fas fa-fw fa-expand-alt" data-fa-transform="rotate-45"></i>
+</a>
 
-
-
-
-
-
-
-
-
-
-  <div id="sharing" class="mt3 ananke-socials">
     
   </div>
+</div><article class="row card component mb-4 post">
+  <div class="card-header ">
+    <h1 class="card-title post-title my-2">第三章 文件</h1>
+  </div>
+  <div class="card-body"><div class="post-meta mb-3">
+  <span class="post-date me-1 mb-1" title="created on 0001-01-01 08:00:00 &#43;0800 CST.">January 1, 1</span><span class="post-reading-time me-1 mb-1"></span>
+</div>
 
-
-      <h1 class="f1 athelas mt3 mb1">第三章 文件</h1>
-      
-      
-      
-
-      
-      
-    </header>
-    <div class="nested-copy-line-height lh-copy serif f4 nested-links mid-gray pr4-l w-two-thirds-l"><p>构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。</p>
-<h3 id="参数文件">参数文件</h3>
+<div class="mt-2 mb-3 d-block d-xxl-none">
+    <h2 class="text-surface mb-3">Contents</h2>
+    <div id="post-toc-container">
+        </div>
+    <hr class="text-secondary">
+</div><div class="post-content mb-3" data-bs-spy="scroll" data-bs-target="#TableOfContents" tabindex="0">
+        <div id="post-content-body"><p>构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。</p>
+<h3 id="参数文件" data-numberify>参数文件<a class="anchor ms-1" href="#参数文件"></a></h3>
 <p>参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的
 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。</p>
-<h3 id="日志文件">日志文件</h3>
+<h3 id="日志文件" data-numberify>日志文件<a class="anchor ms-1" href="#日志文件"></a></h3>
 <p>日志文件记录了影响MySQL数据库的各种类型活动。</p>
-<h4 id="错误日志">错误日志</h4>
+<h4 id="错误日志" data-numberify>错误日志<a class="anchor ms-1" href="#错误日志"></a></h4>
 <p>错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过<code>SHOW VARIABLES LIKE 'log_error'</code>来定位该文件</p>
-<h4 id="慢查询日志">慢查询日志</h4>
+<h4 id="慢查询日志" data-numberify>慢查询日志<a class="anchor ms-1" href="#慢查询日志"></a></h4>
 <p>慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数  <code>long_query_time</code>来设置。
 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为<code>slow_log</code>。
 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过<code>long_query_io</code>参数将超过指定逻辑 IO 次数的 SQL 语句记录到 <code>slow log</code>中。</p>
-<h4 id="二进制日志bin-log">二进制日志（bin log）</h4>
+<h4 id="二进制日志bin-log" data-numberify>二进制日志（bin log）<a class="anchor ms-1" href="#二进制日志bin-log"></a></h4>
 <p>二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：</p>
 <ol>
 <li>恢复：某些数据的恢复需要二进制日志。</li>
@@ -180,50 +405,271 @@ InnoDB存储引擎文件 表空间文件 InnoDB采用将存储的数据按表空
 <li>MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式</li>
 </ol>
 <p>因为二进制日志的文件格式是二进制，所以要查看的话需要通过<code>mysqlbinlog</code>工具进行。</p>
-<h3 id="innodb存储引擎文件">InnoDB存储引擎文件</h3>
-<h4 id="表空间文件">表空间文件</h4>
+<h3 id="innodb存储引擎文件" data-numberify>InnoDB存储引擎文件<a class="anchor ms-1" href="#innodb存储引擎文件"></a></h3>
+<h4 id="表空间文件" data-numberify>表空间文件<a class="anchor ms-1" href="#表空间文件"></a></h4>
 <p>InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为<code>ibdata1</code>的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。</p>
-<h4 id="重做日志文件redo-log">重做日志文件（redo log）</h4>
+<h4 id="重做日志文件redo-log" data-numberify>重做日志文件（redo log）<a class="anchor ms-1" href="#重做日志文件redo-log"></a></h4>
 <p>默认情况下 InnoDB 引擎有两个名为 <code>ib_logfile0</code>和 <code>ib_logfile1</code>的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。
 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。
 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地<code>async checkpoint</code>，导致性能抖动。
 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。</p>
-<h4 id="与bin-log有什么区别">与bin log有什么区别？</h4>
+<h4 id="与bin-log有什么区别" data-numberify>与bin log有什么区别？<a class="anchor ms-1" href="#与bin-log有什么区别"></a></h4>
 <ol>
 <li>bin log 会记录所有与MySQL数据库相关的日志记录，而redo log只记录有关InnoDB 引擎本身的事务日志</li>
 <li>bin log 记录的是一个事务的具体操作内容，即逻辑日志，而redo log记录的是每个页更改的物理情况</li>
 <li>bin log 仅在事务提交前进行提交，即只写盘一次，不论这时事务多大；而redo log在事务进行中不断写入</li>
 </ol>
-<ul class="pa0">
-  
-</ul>
-<div class="mt6 instapaper_ignoref">
-      
-      
-      </div>
+</div>
+</div>
+</div><div class="card-footer">
+  <div class="post-navs d-flex justify-content-evenly"><div class="post-nav post-next">
+      <a href="/post/ssh%E8%BF%9E%E6%8E%A5/">SSH连接</a>
+      <i class="fas fa-fw fa-chevron-down post-next-icon ms-1" data-fa-transform="rotate-270"></i>
+    </div></div>
+</div></article><div class="post-copyright mb-3 row card component" id="post-copyright">
+    <div class="card-header">
+        <h2 class="card-title fs-4 my-2 text-surface">Copyright</h2>
     </div>
+    <div class="card-body"><a class="d-flex align-items-center flex-column" target="_blank" rel="license noopener noreferrer" href="https://creativecommons.org/licenses/by-nc-nd/4.0/deed.en">
+  <span><i class="fab fa-fw fa-2x fa-creative-commons"></i><i class="fab fa-fw fa-2x fa-creative-commons-by"></i><i class="fab fa-fw fa-2x fa-creative-commons-nc"></i><i class="fab fa-fw fa-2x fa-creative-commons-nd"></i></span>
+  CC BY-NC-ND 4.0 
+</a>
 
-    <aside class="w-30-l mt6-l">
+
+    </div>
+</div><div class="card component row post-comments" id="post-comments">
+  <div class="card-header">
+    <h2 class="card-title my-2 fs-4 text-surface">Comments</h2>
+  </div>
+  <div class="card-body">
+
+
+
+</div>
+</div></div>
+</div>
+<aside class="col-xxl-4 sidebar d-flex">
+  <div class="container d-flex flex-column">
+    
+    
+<div class="accordion profile">
+  <div class="accordion-item card row text-center component">
+    <div class="accordion-header card-header border-0" id="profile-header">
+      <a
+        class="accordion-button d-lg-none mb-2 shadow-none p-0 bg-transparent text-surface"
+        role="button" data-bs-toggle="collapse" href="#profile" aria-expanded="true" aria-controls="profile">
+        Profile
+      </a>
+    </div>
+    <div class="card-body collapse accordion-collapse accordion-body d-lg-block show" id="profile" aria-labelledby="profile-header">
+      <div class="col-12 d-flex align-items-center justify-content-center"><picture><img class="profile-avatar rounded-circle " alt="毛毛鱼" src="https://hbs-skeleton.netlify.app/images/profile.png" loading="lazy" data-viewer-invisible width="300" height="300" />
+</picture>
+</div>
+      <div class="col-12 profile-meta"><div class="profile-name fw-fold fs-lg">毛毛鱼</div><div class="profile-bio">gopher, idealist</div><div class="profile-location"><i class="fas fa-fw fa-map-marker-alt"></i>重庆</div></div>
+
+
+<nav class="social-links nav justify-content-center mt-1 justify-content-around">
+    <a class="nav-link social-link" href="mailto:juguaguaji@gmail.com" title="Email">
+      <i class="fas fa-fw fa-2x fa-envelope" style="color: #0963ac;"></i>
+    </a>
+      <a class="nav-link social-link" target="_blank" href="https://github.com/juguagua" title="GitHub" rel="me">
+        <i class="fa-fw fa-2x fab fa-github"
+          ></i>
+      </a>
+</nav>
+</div>
+  </div>
+</div>
+
+
+<div class="accordion taxonomies-toggle">
+    <div class="row card component accordion-item">
+        <div class="accordion-header card-header border-0">
+            <a
+                class="accordion-button d-lg-none mb-1 shadow-none p-0 bg-transparent"
+                role="button" data-bs-toggle="collapse" href="#taxonomies-toggle" aria-expanded="true" aria-controls="taxonomies-toggle">
+                Taxonomies
+            </a>
+        </div>
+        <div class="card-body collapse accordion-collapse accordion-body d-lg-block show" id="taxonomies-toggle">
+            <ul class="nav nav-pills nav-fill" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="taxonomySeriesTab" data-bs-toggle="tab" data-bs-target="#taxonomySeries" 
+                            type="button" role="tab" aria-controls="taxonomySeries" aria-selected="true">
+                            Series
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="taxonomyCategoriesTab" data-bs-toggle="tab" data-bs-target="#taxonomyCategories" 
+                            type="button" role="tab" aria-controls="taxonomyCategories" aria-selected="true">
+                            Categories
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="taxonomyTagsTab" data-bs-toggle="tab" data-bs-target="#taxonomyTags" 
+                            type="button" role="tab" aria-controls="taxonomyTags" aria-selected="true">
+                            Tags
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="taxonomyAuthorsTab" data-bs-toggle="tab" data-bs-target="#taxonomyAuthors" 
+                            type="button" role="tab" aria-controls="taxonomyAuthors" aria-selected="true">
+                            Authors
+                        </button>
+                    </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="taxonomyArchivesTab" data-bs-toggle="tab" data-bs-target="#taxonomyArchives" 
+                        type="button" role="tab" aria-controls="taxonomyArchives" aria-selected="true">
+                        Archives
+                    </button>
+                </li>
+            </ul>
+            
+            <div class="tab-content mt-3">
+                    <div class="tab-pane active" id="taxonomySeries" role="tabpanel" aria-labelledby="taxonomySeriesTab" tabindex="0">
+                        <a href="/series/news/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-series me-2 mb-2" title="News">
+                            News
+                            <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+                        </a>
+                    </div>
+                    <div class="tab-pane" id="taxonomyCategories" role="tabpanel" aria-labelledby="taxonomyCategoriesTab" tabindex="0">
+                        <a href="/categories/image/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-category me-2 mb-2" title="Image">
+                            Image
+                            <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+                        </a>
+                    </div>
+                    <div class="tab-pane" id="taxonomyTags" role="tabpanel" aria-labelledby="taxonomyTagsTab" tabindex="0">
+                        <a href="/tags/crop/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Crop">
+                            Crop
+                            <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+                        </a>
+                        <a href="/tags/fill/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Fill">
+                            Fill
+                            <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+                        </a>
+                        <a href="/tags/filters/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Filters">
+                            Filters
+                            <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+                        </a>
+                        <a href="/tags/fit/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-tag me-2 mb-2" title="Fit">
+                            Fit
+                            <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+                        </a>
+                    </div>
+                    <div class="tab-pane" id="taxonomyAuthors" role="tabpanel" aria-labelledby="taxonomyAuthorsTab" tabindex="0">
+                        <a href="/authors/razonyang/" class="btn btn-sm btn-secondary post-taxonomy ps-3 post-author me-2 mb-2" title="RazonYang">
+                            RazonYang
+                            <span class="badge badge-sm text-secondary bg-white ms-1">1</span>
+                        </a>
+                    </div>
+                <div class="tab-pane" id="taxonomyArchives" role="tabpanel" aria-labelledby="taxonomyArchivesTab" tabindex="0">
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="accordion post-toc d-none d-lg-block">
+  <div class="accordion-item row mb-4 card component" id="postTOC">
+    <div class="card-header accordion-header">
+      <h2 class="card-title fs-4 my-2 text-surface d-none d-lg-block">Contents</h2>
+      <a class="accordion-button d-lg-none mb-1 collapsed shadow-none p-0 bg-transparent" role="button" data-bs-toggle="collapse" href="#post-toc" aria-expanded="false" aria-controls="post-toc">
+        Contents
+      </a>
+    </div>
+    <div class="card-body collapse accordion-collapse accordion-body d-lg-block" id="post-toc">
+      <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#参数文件">参数文件</a></li>
+        <li><a href="#日志文件">日志文件</a></li>
+        <li><a href="#innodb存储引擎文件">InnoDB存储引擎文件</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+    </div>
+  </div>
+</div>
 
 
 
 
+
+    
+  </div>
 </aside>
 
-  </article>
-
-    </main>
-    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
-  <div class="flex justify-between">
-  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://juguagua.github.io/" >
-    &copy;  juguaguaji 2023 
-  </a>
-    <div>
-<div class="ananke-socials">
-  
-</div></div>
+      </div>
+    </main><footer class="footer mt-auto py-3 text-center container"><div class="offcanvas offcanvas-bottom h-auto" tabindex="-1" id="offcanvasActionsPanel"
+  aria-labelledby="offcanvasActionsPanelLabel">
+  <div class="offcanvas-header">
+    <div class="offcanvas-title h5" id="offcanvasActionsPanelLabel">
+      <i class="fas fa-fw fa-th-large me-1"></i>
+      Actions
+    </div>
+    <button type="button" class="btn-close ms-auto" data-bs-dismiss="offcanvas" data-bs-target="offcanvasActionsPanel" aria-label="Close"></button>
   </div>
+  <div class="offcanvas-body mt-2"><div class="social-share mb-4 d-flex overflow-auto">
+      <a class="btn-social-share d-flex flex-column align-items-center me-3" rel="noopener noreferrer" aria-label="Twitter Share Button"
+      target="_blank" href="https://twitter.com/intent/tweet?title=Offline&url=https%3a%2f%2fhbs-skeleton.netlify.app%2foffline%2f">
+        <i class="fab fa-2x fa-fw fa-twitter mb-2"></i> Twitter
+      </a>
+      <a class="btn-social-share d-flex flex-column align-items-center me-3" rel="noopener noreferrer" aria-label="Facebook Share Button"
+        target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3a%2f%2fhbs-skeleton.netlify.app%2foffline%2f">
+        <i class="fab fa-2x fa-fw fa-facebook-f mb-2"></i> Facebook
+      </a>
+    </div>
+    <hr class="mb-4"><div class="actions d-flex overflow-auto align-items-center">
+      <a role="button" class="action action-go-back d-flex flex-column align-items-center me-3" href="javascript: window.history.back();">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-chevron-circle-down" data-fa-transform="rotate-90"></i></span> Go back
+      </a>
+      <a role="button" class="action action-reload-page d-flex flex-column align-items-center me-3">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-redo-alt"></i></span> Reload
+      </a>
+      <a role="button" class="action action-copy-url d-flex flex-column align-items-center me-3">
+        <span class="action-icon mb-2"><i class="fas fa-2x fa-link"></i></span> Copy URL
+      </a>
+    </div>
+  </div>
+</div><div class="row text-center">
+  <div class="col-12 mt-2">
+    <p class="mb-2">云在青天水在瓶</p>
+    <p class="text-secondary mb-2"><small>the ironclad is still there</small></p><div class="copyright mb-2 text-secondary">
+  <small>
+</small>
+</div>
+<div class="powered-by mb-2 text-secondary">
+  <small>
+    Build with ❤️ from the <a class="text-primary" href="https://gohugo.io" target="_blank" rel="noopener noreferrer">Hugo</a> and the <a class="text-primary" href="https://github.com/razonyang/hugo-theme-bootstrap" target="_blank" rel="noopener noreferrer">HBS</a> theme.
+  </small>
+</div>
+
+
+<nav class="social-links nav justify-content-center mb-2 mt-3">
+  <a class="nav-link social-link p-0 me-1 mb-2" target="_blank" href="/index.xml" title="RSS" rel="me">
+    <i class="fas fa-fw fa-2x fa-rss" style="color: #ea6221;"></i>
+  </a>
+</nav>
+</div>
+  <div class="col-12 col-lg-8 offset-0 offset-lg-1"></div>
+</div>
 </footer>
+<script data-precache src="/assets/main/bundle.min.2d9f5613d0ac904bfd74f2148976b8d9549521d2258cba7f3d97fb6e49aa7358.js" integrity="sha256-LZ9WE9CskEv9dPIUiXa42VSVIdIljLp/PZf7bkmqc1g=" crossorigin="anonymous" async></script><script data-precache src="/assets/icons/bundle.min.4f30d5267a9f2f9d45ed93969d45ec626100a969a8b91f71f753315a261e9034.js" integrity="sha256-TzDVJnqfL51F7ZOWnUXsYmEAqWmouR9x91MxWiYekDQ=" crossorigin="anonymous" defer></script>
+<script data-precache src="/assets/viewer/bundle.min.9ba76665e3c9fa036c059c1c85f287b5780b8c3e27f6cc9cd6372b90c42cf347.js" integrity="sha256-m6dmZePJ&#43;gNsBZwchfKHtXgLjD4n9syc1jcrkMQs80c=" crossorigin="anonymous" defer></script><script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('\/service-worker.min.js').then(function(reg) {
+      console.log('Successfully registered service worker', reg);
+    }).catch(function(err) {
+      console.warn('Error whilst registering service worker', err);
+    });
+  });
+}
+</script>
+
 
   </body>
 </html>

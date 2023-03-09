@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-  xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  <url>
-    <loc>https://juguagua.github.io/categories/</loc>
-  </url><url>
-    <loc>https://juguagua.github.io/</loc>
-  </url><url>
-    <loc>https://juguagua.github.io/post/</loc>
-  </url><url>
-    <loc>https://juguagua.github.io/post/ssh%E8%BF%9E%E6%8E%A5/</loc>
-  </url><url>
-    <loc>https://juguagua.github.io/tags/</loc>
-  </url><url>
-    <loc>https://juguagua.github.io/post/%E7%AC%AC%E4%B8%89%E7%AB%A0-%E6%96%87%E4%BB%B6/</loc>
-  </url>
-</urlset>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <sitemap>
+    <loc>https://hbs-skeleton.netlify.app/en/sitemap.xml</loc>
+    
+      <lastmod>2022-07-08T11:34:47+08:00</lastmod>
+    
+  </sitemap>
+  
+  <sitemap>
+    <loc>https://hbs-skeleton.netlify.app/zh-cn/sitemap.xml</loc>
+    
+  </sitemap>
+  
+</sitemapindex>
