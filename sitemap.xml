@@ -2,16 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://juguagua.github.io/post/jk/</loc>
-    <lastmod>2022-11-08T22:23:48+08:00</lastmod>
-  </url><url>
-    <loc>https://juguagua.github.io/</loc>
-    <lastmod>2022-11-08T22:23:48+08:00</lastmod>
-  </url><url>
-    <loc>https://juguagua.github.io/post/</loc>
-    <lastmod>2022-11-08T22:23:48+08:00</lastmod>
+    <loc>https://juguagua.github.io/post/%E7%AC%AC%E4%B8%89%E7%AB%A0-%E6%96%87%E4%BB%B6/</loc>
   </url><url>
     <loc>https://juguagua.github.io/categories/</loc>
+  </url><url>
+    <loc>https://juguagua.github.io/</loc>
+  </url><url>
+    <loc>https://juguagua.github.io/post/</loc>
   </url><url>
     <loc>https://juguagua.github.io/tags/</loc>
   </url>

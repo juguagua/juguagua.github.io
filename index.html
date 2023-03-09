@@ -118,14 +118,24 @@
       
       <div class="blah w-100">
         <h1 class="f3 fw1 athelas mt0 lh-title">
-          <a href="/post/jk/" class="color-inherit dim link">
-            Jk
+          <a href="/post/%E7%AC%AC%E4%B8%89%E7%AB%A0-%E6%96%87%E4%BB%B6/" class="color-inherit dim link">
+            
             </a>
         </h1>
         <div class="f6 f5-l lh-copy nested-copy-line-height nested-links">
-          jk是世界上最好看的衣服  jk + 肉丝 jk + 黑丝 jk + 白丝 jk + 光腿  
+          构成Mysql数据库和InnoDB存储引擎表的各种类型文件，主要有：参数文件，日志文件，MySQL表结构文件，存储引擎文件。
+参数文件 参数文件指的就是MySQL数据库的配置文件，用来定义数据库的各种文件所在位置以及指定某些初始化参数等。参数文件是直接以文本方式进行存储的 参数类型 有 动态参数和静态参数两种。动态参数意味着可以在数据库运行中更改，而静态参数就在整个实例的生命周期内都不能进行更改。
+日志文件 日志文件记录了影响MySQL数据库的各种类型活动。
+错误日志 错误日志对数据库的启动，运行，关闭过程都进行了记录。在数据库遇到问题时应首先查看错误日志来定位问题。可以通过SHOW VARIABLES LIKE 'log_error'来定位该文件
+慢查询日志 慢查询日志可以帮助定位存在问题的 SQL 语句，从而进行 SQL 语句层面的优化。例如可以在 MySQL 启动时设置一个阈值，将运行时间超过该值的所有 SQL 语句都记录到慢查询日志文件中，该阈值可以通过参数 long_query_time来设置。 可以将慢查询的日志记录放入一张表中，使得排查更加方便和直观，慢查询表名为slow_log。 除了查询出执行时间慢的 SQL，也可以针对SQL语句执行的 IO 次数进行查询，可以通过long_query_io参数将超过指定逻辑 IO 次数的 SQL 语句记录到 slow log中。
+二进制日志（bin log） 二进制日志记录了对数据库执行更改的所有操作。其主要有以下几种作用：
+ 恢复：某些数据的恢复需要二进制日志。 复制：主要用于主从数据库的同步 审计：可以通过二进制日志中的信息审计判断是否有对数据库进行注入的攻击  二进制日志并不是在每次写的时候都会同步到磁盘（缓冲写），因此当数据库宕机时，可能有一部分数据没有写入到二进制日志文件中，这会给恢复和复制带来一些问题。 如果当前数据库是主从复制中的 从 角色，则同步时需要设置log-slave-update参数。
+二进制日志的格式可以由binlog_format参数进行设置，其为动态参数可随时更改：
+ STATEMENT：记录的是日志的逻辑 SQL 语句 ROW：记录的是表的行更改情况 MIXED：默认采用STATEMENT格式进行二进制日志的记录，在一些情况下会使用 ROW 格式  因为二进制日志的文件格式是二进制，所以要查看的话需要通过mysqlbinlog工具进行。
+InnoDB存储引擎文件 表空间文件 InnoDB采用将存储的数据按表空间进行存放的设计。默认配置下有初始大小为10MB，名为ibdata1的表空间文件，其大小可以自动增长。可以将多个文件共同组成表空间文件，如果这些文件位于不同的磁盘上，磁盘的负载就能被平均以此提高数据库的整体性能。
+重做日志文件（redo log） 默认情况下 InnoDB 引擎有两个名为 ib_logfile0和 ib_logfile1的文件，这就是默认的重做日志，其记录了对于 InnoDB 引擎的事务日志，当数据库宕机时，就使用重做日志恢复到宕机前的状态来保证数据的完整性。 每个存储引擎下都至少有一个重做日志文件组，每个文件组下至少有两个重做日志文件。可以设置多个镜像日志组，将不同的文件组放在不同的磁盘上来提高可靠性。重做日志文件的大小都一致，以循环写的方式运行。 重做日志文件的大小设置对于存储引擎的性能影响很大，如果设置过大，则恢复时需要很长时间，如果设置过小，则会导致频繁地async checkpoint，导致性能抖动。 重做日志也不是直接写的，而是先写入一个重做日志缓冲，之后按照一定的条件顺序写入日志文件中。
         </div>
-          <a href="/post/jk/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
+          <a href="/post/%E7%AC%AC%E4%B8%89%E7%AB%A0-%E6%96%87%E4%BB%B6/" class="ba b--moon-gray bg-light-gray br2 color-inherit dib f7 hover-bg-moon-gray link mt2 ph2 pv1">read more</a>
         
       </div>
     </div>
@@ -145,7 +155,7 @@
     <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
   <div class="flex justify-between">
   <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="https://juguagua.github.io/" >
-    &copy;  juguaguaji 2022 
+    &copy;  juguaguaji 2023 
   </a>
     <div>
 <div class="ananke-socials">
