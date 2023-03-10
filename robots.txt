@@ -1,2 +1,3 @@
 User-agent: *
-Sitemap: https://hbs-skeleton.netlify.app/sitemap.xml
+Disallow:
+Sitemap: https://juguagua.github.io/sitemap.xml
